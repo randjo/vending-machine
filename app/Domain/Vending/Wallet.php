@@ -13,6 +13,11 @@ final class Wallet
         $this->balance = (int) ($balance * 100);
     }
 
+    /**
+     * @var int $coin - coin in cents
+     *
+     * return bool
+     */
     public function insertCoin(int $coin): bool
     {
         if (!in_array($coin, $this->settings->getAllowedCoins(), true)) {

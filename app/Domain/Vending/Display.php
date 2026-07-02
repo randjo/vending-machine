@@ -9,7 +9,6 @@ final class Display
     /** @var string[] */
     private array $messages = [];
 
-    // 🧾 add message
     public function add(string $message): void
     {
         $this->messages[] = $message;
@@ -19,15 +18,18 @@ final class Display
         // }
     }
 
-    // 🖨️ render output string
     public function all(): string
     {
         return implode("\n", $this->messages);
     }
 
-    // 🔄 reset display
     public function reset(): void
     {
         $this->messages = [];
+    }
+
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 }

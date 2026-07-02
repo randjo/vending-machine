@@ -3,7 +3,7 @@
 use App\Domain\Vending\Currency;
 use App\Domain\Vending\VendingMachine;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 $machine = new VendingMachine(
     [
