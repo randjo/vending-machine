@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Vending;
 
+use App\Repositories\DatabaseDisplayRepository;
+use App\Repositories\DatabaseWalletRepository;
+
 final class VendingMachine
 {
     private Display $display;
@@ -11,25 +14,56 @@ final class VendingMachine
     private Currency $currency;
     private Wallet $wallet;
 
+    public const SOURCE_CONFIG = 'config';
+    public const SOURCE_DATABASE = 'database';
+
     public function __construct(
         array $currency,
-        array $drinks,
-        array $wallet,
+        array $drinksConfig,
+        array $walletConfig,
+        string $source = self::SOURCE_CONFIG,
     ) {
-        $this->display = new Display();
+        $this->initializeCurrency($currency);
 
+        if ($source === self::SOURCE_CONFIG) {
+            $this->initializeFromConfig($drinksConfig, $walletConfig);
+        } else {
+            $this->initializeFromDatabase($drinksConfig, $walletConfig);
+        }
+    }
+
+    private function initializeCurrency(array $currency)
+    {
         $this->currency = new Currency(
             sign: $currency['sign'],
             space: $currency['space'],
             position: $currency['position'],
         );
+    }
 
-        $this->settings = new Settings(
-            $drinks,
-            $wallet['coins'],
+    private function initializeFromConfig(array $drinksConfig, array $walletConfig): void
+    {
+        $drinks = [];
+
+        foreach ($drinksConfig as $name => $price) {
+            $drinks[$name] = Currency::toCents($price);
+        }
+
+        $coins = array_map(
+            fn(float $coin) => Currency::toCents($coin),
+            $walletConfig['coins']
         );
 
-        $this->wallet = new Wallet($this->settings, $wallet['balance'] ?? 0);
+        $this->display = new Display(new ArrayDisplayRepository());
+        $this->settings = new Settings($drinks, $coins);
+        $this->wallet = new Wallet($this->settings, new ArrayWalletRepository($walletConfig['balance'] ?? 0));
+    }
+
+    private function initializeFromDatabase(array $drinks, array $walletConfig): void
+    {
+        $this->display = new Display(new DatabaseDisplayRepository());
+        $this->settings = new Settings($drinks, $walletConfig['coins']);
+        $this->wallet = new Wallet($this->settings, new DatabaseWalletRepository());
     }
 
     // 🍹 viewDrinks
@@ -37,17 +71,22 @@ final class VendingMachine
     {
         $this->display->add("Напитки:");
 
-        foreach ($this->settings->getDrinks() as $name => $price) {
+        foreach ($this->drinks() as $name => $price) {
             $this->display->add("$name: {$this->currency->format($price)}");
         }
 
         return $this;
     }
 
+    public function drinks(): array
+    {
+        return $this->settings->getDrinks();
+    }
+
     // 🪙 putCoin
     public function putCoin(float $coin): self
     {
-        $coinInCents = (int) ($coin * 100);
+        $coinInCents = Currency::toCents($coin);
 
         if ($this->wallet->insertCoin($coinInCents)) {
             $this->display->add("Успешно поставихте {$this->currency->format($coinInCents)}, текущата Ви сума е {$this->currency->format($this->wallet->getBalance())}");
@@ -124,9 +163,31 @@ final class VendingMachine
         return $this;
     }
 
-    // 📺 output (for final echo)
+    public function reset(): self
+    {
+        $this->wallet->reset();
+        $this->display->reset();
+
+        return $this;
+    }
+
     public function display(): Display
     {
         return $this->display;
+    }
+
+    public function currency(): Currency
+    {
+        return $this->currency;
+    }
+
+    public function coins(): array
+    {
+        return $this->settings->getAllowedCoins();
+    }
+
+    public function balance(): int
+    {
+        return (int) $this->wallet->getBalance();
     }
 }

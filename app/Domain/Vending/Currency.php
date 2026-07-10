@@ -33,10 +33,20 @@ final class Currency
 
     public function format(int $amount): string
     {
-        $value = number_format($amount / 100, 2);
+        $value = number_format(self::fromCents($amount), 2);
 
         return $this->position === self::CURRENCY_POSITION_AFTER
             ? $value . $this->space . $this->sign
             : $this->sign . $this->space . $value;
+    }
+
+    public static function toCents(float $amount): int
+    {
+        return (int) round($amount * 100);
+    }
+
+    public static function fromCents(int $amount): float
+    {
+        return $amount / 100;
     }
 }

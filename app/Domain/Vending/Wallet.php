@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Vending;
 
+use App\Domain\Vending\WalletRepositoryInterface;
+
 final class Wallet
 {
-    private int $balance;
-
-    public function __construct(private Settings $settings, float $balance)
-    {
-        $this->balance = (int) ($balance * 100);
-    }
+    public function __construct(private Settings $settings, private WalletRepositoryInterface $repository) {}
 
     /**
      * @var int $coin - coin in cents
@@ -24,30 +21,30 @@ final class Wallet
             return false;
         }
 
-        $this->balance += $coin;
+        $this->repository->saveBalance($this->getBalance() + $coin);
 
         return true;
     }
 
     public function spend(int $amount): bool
     {
-        if ($this->balance < $amount) {
+        if ($this->getBalance() < $amount) {
             return false;
         }
 
-        $this->balance -= $amount;
+        $this->repository->saveBalance($this->getBalance() - $amount);
 
         return true;
     }
 
     public function getBalance(): int
     {
-        return $this->balance;
+        return $this->repository->getBalance();
     }
 
     public function getChange(): array
     {
-        $amount = $this->balance;
+        $amount = $this->getBalance();
         $result = [];
 
         foreach (array_reverse($this->settings->getAllowedCoins()) as $coin) {
@@ -64,6 +61,6 @@ final class Wallet
 
     public function reset(): void
     {
-        $this->balance = 0;
+        $this->repository->reset();
     }
 }
