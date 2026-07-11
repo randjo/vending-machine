@@ -7,13 +7,20 @@ namespace App\Http\Controllers\Api\Admin;
 use App\DTO\Vending\DrinkData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDrinkRequest;
+use App\Http\Resources\DrinkResource;
 use App\Services\AdminVendingService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 final class DrinkController extends Controller
 {
     public function __construct(private AdminVendingService $service) {}
+
+    public function index(): JsonResponse
+    {
+        return response()->json([
+            'drinks' => DrinkResource::collection($this->service->getAllDrinks()),
+        ]);
+    }
 
     public function store(StoreDrinkRequest $request): JsonResponse
     {
@@ -23,6 +30,16 @@ final class DrinkController extends Controller
             'message' => 'Drink created',
             'drink' => $drink,
         ], 201);
+    }
+
+    public function update(StoreDrinkRequest $request, int $id): JsonResponse
+    {
+        $drink = $this->service->updateDrink($id, DrinkData::fromRequest($request->validated()));
+
+        return response()->json([
+            'message' => 'Drink updated',
+            'drink' => $drink,
+        ]);
     }
 
     public function destroy(int $id): JsonResponse

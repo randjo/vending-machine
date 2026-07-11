@@ -13,6 +13,7 @@ final class VendingMachine
     private Settings $settings;
     private Currency $currency;
     private Wallet $wallet;
+    private bool $lastActionSuccess = false;
 
     public const SOURCE_CONFIG = 'config';
     public const SOURCE_DATABASE = 'database';
@@ -109,6 +110,7 @@ final class VendingMachine
 
         if ($price === null) {
             $this->display->add("Исканият продукт не е намерен.");
+            $this->lastActionSuccess = false;
             return $this;
         }
 
@@ -119,8 +121,10 @@ final class VendingMachine
                     ", текущата Ви сума е " .
                     $this->currency->format($this->wallet->getBalance())
             );
+            $this->lastActionSuccess = true;
         } else {
             $this->display->add("Недостатъчна наличност.");
+            $this->lastActionSuccess = false;
         }
 
         return $this;
@@ -189,5 +193,10 @@ final class VendingMachine
     public function balance(): int
     {
         return (int) $this->wallet->getBalance();
+    }
+
+    public function wasSuccessful(): bool
+    {
+        return $this->lastActionSuccess;
     }
 }

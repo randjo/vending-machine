@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Domain\Vending\Currency;
 use App\Domain\Vending\VendingMachine;
+use App\Models\Currency;
 use App\Repositories\DrinkRepository;
 use App\Repositories\CoinRepository;
 
@@ -22,11 +22,13 @@ final class VendingMachineService
 
     private function createMachine(): VendingMachine
     {
+        $currencySetting = Currency::first();
+
         return new VendingMachine(
             [
-                'sign' => 'лв.',
-                'space' => '',
-                'position' => Currency::CURRENCY_POSITION_AFTER,
+                'sign' => $currencySetting->sign,
+                'space' => $currencySetting->space ?? "",
+                'position' => $currencySetting->position,
             ],
             $this->drinkRepository->all(),
             [

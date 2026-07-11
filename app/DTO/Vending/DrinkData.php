@@ -14,7 +14,7 @@ final readonly class DrinkData
     {
         return new self(
             name: $data['name'],
-            price: Currency::toCents($data['price'])
+            price: Currency::toCents((float) $data['price'])
         );
     }
 }

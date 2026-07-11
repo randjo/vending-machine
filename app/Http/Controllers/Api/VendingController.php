@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\VendingStateResource;
 use App\Services\VendingMachineService;
 use Illuminate\Http\Request;
+use App\Http\Requests\Admin\PutCoinRequest;
 
 final class VendingController extends Controller
 {
@@ -22,17 +23,10 @@ final class VendingController extends Controller
         ]);
     }
 
-    public function putCoin(Request $request)
+    public function putCoin(PutCoinRequest $request)
     {
-        $request->validate([
-            'coin' => [
-                'required',
-                'numeric'
-            ]
-        ]);
-
         $machine = $this->service->machine();
-        $machine->putCoin((float)$request->coin);
+        $machine->putCoin($request->value);
 
         return $machine->display()->latest(1);
     }
@@ -66,7 +60,10 @@ final class VendingController extends Controller
         $machine = $this->service->machine();
         $machine->buyDrink($request->drink);
 
-        return $machine->display()->latest(1);
+        return response()->json([
+            'success' => $machine->wasSuccessful(),
+            'message' => $machine->display()->latest(1),
+        ]);
     }
 
     public function display()
@@ -76,6 +73,16 @@ final class VendingController extends Controller
                 ->machine()
                 ->display()
                 ->latest()
+        ]);
+    }
+
+    public function log()
+    {
+        return response()->json([
+            'messages' => $this->service
+                ->machine()
+                ->display()
+                ->latest(PHP_INT_MAX)
         ]);
     }
 
@@ -93,6 +100,13 @@ final class VendingController extends Controller
         $machine->viewAmount();
 
         return $machine->display()->latest(1);
+    }
+
+    public function viewBalance()
+    {
+        $machine = $this->service->machine();
+
+        return $machine->currency()->format($machine->balance());
     }
 
     public function restart()

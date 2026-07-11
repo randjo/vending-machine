@@ -12,6 +12,11 @@ final readonly class CoinData
 
     public static function fromRequest(array $data): self
     {
-        return new self(value: Currency::toCents($data['value']));
+        return new self(value: Currency::toCents((float) $data['value']));
+    }
+
+    public static function preparedValue(array $data): self
+    {
+        return new self(value: $data['value']);
     }
 }

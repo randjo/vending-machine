@@ -19,6 +19,10 @@ final class AdminVendingService
         private VendingMachineService $machineService,
     ) {}
 
+    public function getAllDrinks()
+    {
+        return $this->drinkRepository->allDrinksCollection();
+    }
 
     public function createDrink(DrinkData $data): Drink
     {
@@ -29,6 +33,13 @@ final class AdminVendingService
         return $drink;
     }
 
+    public function updateDrink(int $id, DrinkData $data): Drink
+    {
+        $drink = $this->drinkRepository->update($id, $data->name, $data->price);
+        $this->machineService->reload();
+
+        return $drink;
+    }
 
     public function deleteDrink(int $id): int
     {
@@ -36,6 +47,11 @@ final class AdminVendingService
         $this->machineService->reload();
 
         return $deletedId;
+    }
+
+    public function getAllCoins()
+    {
+        return $this->coinRepository->allCoinsCollection();
     }
 
     public function createCoin(CoinData $data): Coin
@@ -46,6 +62,13 @@ final class AdminVendingService
         return $coin;
     }
 
+    public function updateCoin(int $id, CoinData $data): Coin
+    {
+        $drink = $this->coinRepository->update($id, $data->value);
+        $this->machineService->reload();
+
+        return $drink;
+    }
 
     public function deleteCoin(int $id): int
     {

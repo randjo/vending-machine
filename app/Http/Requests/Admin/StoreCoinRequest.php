@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class StoreCoinRequest extends FormRequest
 {
@@ -19,8 +20,16 @@ final class StoreCoinRequest extends FormRequest
             'value' => [
                 'required',
                 'numeric',
-                'in:0.05,0.10,0.20,0.50,1',
+                'in:5, 10, 20, 50, 100, 200',
+                Rule::unique('coins', 'value')->ignore($this->route('coin'))
             ],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'value' => (int) round(((float) $this->value) * 100),
+        ]);
     }
 }
