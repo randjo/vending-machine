@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CoinController;
 use App\Http\Controllers\Api\Admin\DrinkController;
 use App\Http\Controllers\Api\VendingController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function () {
@@ -22,4 +23,13 @@ Route::prefix('vending')->group(function () {
     Route::get('/restart', [VendingController::class, 'restart']);
     Route::get('/state', [VendingController::class, 'state']);
     Route::get('/display', [VendingController::class, 'display']);
+});
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::apiResource('drinks', DrinkController::class);
+    Route::apiResource('coins', CoinController::class);
 });
