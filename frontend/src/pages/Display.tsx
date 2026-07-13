@@ -1,23 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/api";
 import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
 
 export default function Display() {
     const [messages, setMessages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const loadMessages = useCallback(async () => {
+    async function loadMessages() {
         try {
             const response = await api.get("/api/admin/display");
 
             setMessages(response.data.messages);
-        } catch (error) {
-            console.error(error);
+        } catch {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }
 
     useEffect(() => {
         loadMessages();
@@ -27,8 +25,6 @@ export default function Display() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold">Machine logs</h1>
-
-                <Button onClick={loadMessages}>Refresh</Button>
             </div>
 
             <Card>

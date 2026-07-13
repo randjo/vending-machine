@@ -21,7 +21,7 @@ export default function Drinks() {
             const response = await api.get("/api/admin/drinks");
 
             setDrinks(response.data.drinks);
-        } catch (error) {
+        } catch {
             setError("Failed to load drinks");
         } finally {
             setLoading(false);

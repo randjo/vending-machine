@@ -21,7 +21,7 @@ export default function Currency() {
             const response = await api.get("/api/admin/currency");
 
             setCurrency(response.data.currency);
-        } catch (error) {
+        } catch {
             setError("Failed to load currency settings");
         } finally {
             setLoading(false);
