@@ -49,4 +49,12 @@ class AuthController extends Controller
     {
         return $request->user();
     }
+
+    public function checkUser()
+    {
+        return [
+            'authenticated' => Auth::check(),
+            'user' => Auth::user()
+        ];
+    }
 }
