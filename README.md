@@ -1,58 +1,220 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Vending Machine
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-stack vending machine application with a public customer interface and a protected admin panel. The backend implements vending logic in a domain-driven PHP layer, exposes a REST API via Laravel, and persists machine state in MySQL. The frontend is a React SPA that talks to the API over cookie-based authentication.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Public vending interface (`/`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Browse available drinks with formatted prices
+- Insert coins and view the current balance
+- Purchase drinks and receive change
+- View the machine display log (last messages from the vending flow)
+- Collect change when the session ends
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Admin panel (`/admin`)
 
-## Learning Laravel
+- Session-based login with Laravel Sanctum
+- **Dashboard** — restart the vending machine and reset its runtime state
+- **Drinks** — create, edit, and delete drinks
+- **Coins** — manage accepted coin denominations
+- **Currency** — configure currency sign, spacing, and position (before/after amount)
+- **Display** — inspect the machine display message log
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Backend domain logic
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Vending machine core with wallet, change calculation, and display messaging
+- Prices and coin values stored in cents internally
+- Configurable currency formatting (sign, space, position)
+- Persistent machine state (balance, inserted amount, display messages)
+- Feature tests covering purchases, change, invalid coins, insufficient funds, and more
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Tech stack
 
-## Agentic Development
+| Layer       | Technologies                                 |
+| ----------- | -------------------------------------------- |
+| Backend     | PHP 8.3, Laravel 13, Laravel Sanctum         |
+| Database    | MySQL                                        |
+| Testing     | Pest                                         |
+| Frontend    | React 19, TypeScript, Vite 8, Tailwind CSS 4 |
+| HTTP client | Axios (cookie + CSRF support)                |
+| Routing     | React Router 7                               |
+| UI          | SweetAlert2, custom UI components            |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Requirements
 
-```bash
-composer require laravel/boost --dev
+- PHP 8.3+
+- Composer
+- Node.js 20+ and npm
+- MySQL 8+
 
-php artisan boost:install
+## Project structure
+
+```
+vending-machine/
+├── app/
+│   ├── Domain/Vending/      # Core vending machine domain logic
+│   ├── Http/Controllers/    # API controllers
+│   ├── Repositories/        # Data access layer
+│   └── Services/            # Application services
+├── database/migrations/     # Schema and default currency seed
+├── frontend/                # React SPA (see frontend/README.md)
+├── routes/api.php           # API routes
+└── tests/Feature/           # Pest feature tests
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Configuration
 
-## Contributing
+### 1. Clone and install dependencies
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+cd frontend && npm install && cd ..
+```
 
-## Code of Conduct
+### 2. Environment file
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Copy the example environment file and generate an application key:
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Database
+
+Create a MySQL database and update `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=vending_machine
+DB_USERNAME=vending_machine
+DB_PASSWORD=vending_machine_password
+```
+
+Run migrations and seed the default admin user:
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+The seeder creates:
+
+| Field    | Value            |
+| -------- | ---------------- |
+| Email    | `admin@test.com` |
+| Password | `admin123`       |
+
+Migrations also seed a default currency record (`лв`, position after amount).
+
+### 4. Sanctum and CORS
+
+For local development with the React dev server, ensure `.env` contains:
+
+```env
+APP_URL=http://localhost:8000
+SANCTUM_STATEFUL_DOMAINS=localhost:5173
+```
+
+CORS is configured in `config/cors.php` to allow `http://localhost:5173` with credentials.
+
+### 5. Frontend environment
+
+Create `frontend/.env` from the example:
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+## Running the application
+
+**Backend:**
+
+```bash
+php artisan serve
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm run dev
+```
+
+### URLs
+
+| URL                                       | Description            |
+| ----------------------------------------- | ---------------------- |
+| `http://localhost:5173/`                  | Public vending machine |
+| `http://localhost:5173/admin/login`       | Admin login            |
+| `http://localhost:5173/admin`             | Admin dashboard        |
+| `http://localhost:8000/api/vending/state` | Machine state API      |
+
+## API overview
+
+All API routes are prefixed with `/api`.
+
+### Public vending (`/api/vending`)
+
+| Method | Endpoint   | Description                      |
+| ------ | ---------- | -------------------------------- |
+| GET    | `/drinks`  | List available drinks            |
+| GET    | `/coins`   | List accepted coin denominations |
+| POST   | `/coins`   | Insert a coin                    |
+| POST   | `/buy`     | Purchase a drink                 |
+| GET    | `/change`  | Return change                    |
+| GET    | `/amount`  | View inserted amount             |
+| GET    | `/balance` | View current balance             |
+| GET    | `/display` | Get display messages             |
+| GET    | `/state`   | Get full machine state           |
+
+### Admin (`/api/admin`)
+
+| Method              | Endpoint         | Description              |
+| ------------------- | ---------------- | ------------------------ |
+| POST                | `/login`         | Authenticate admin       |
+| POST                | `/logout`        | End session              |
+| GET                 | `/user`          | Get current user         |
+| GET/POST/PUT/DELETE | `/drinks`        | Manage drinks            |
+| GET/POST/PUT/DELETE | `/coins`         | Manage coins             |
+| GET                 | `/currency`      | Get currency settings    |
+| PUT                 | `/currency/{id}` | Update currency settings |
+| GET                 | `/display`       | View display log         |
+| POST                | `/restart`       | Reset machine state      |
+
+Authentication uses Laravel Sanctum session cookies. The frontend requests a CSRF cookie from `/sanctum/csrf-cookie` before login.
+
+## Testing
+
+Tests use an in-memory SQLite database (configured in `phpunit.xml`).
+
+```bash
+composer test
+# or
+php artisan test
+```
+
+## Initial data
+
+After migration, add drinks and coins through the admin panel before using the vending interface. Example coin values: `0.05`, `0.10`, `0.20`, `0.50`, `1.00` BGN.
+
+Prices are submitted in BGN from the admin UI and stored as cents in the database.
+
+## Demo script
+
+A standalone PHP demo of the domain layer is available:
+
+```bash
+php demo.php
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
