@@ -21,9 +21,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function checkAuth() {
         try {
-            const { data } = await api.get("/api/admin/user");
+            const { data } = await api.get("/api/admin/check-user");
 
-            setUser(data);
+            if (data.authenticated) {
+                setUser(data.user);
+            } else {
+                setUser(null);
+            }
         } catch {
             setUser(null);
         } finally {

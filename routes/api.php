@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/check-user', [AuthController::class, 'checkUser']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
