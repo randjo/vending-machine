@@ -5,20 +5,25 @@ interface Props {
 
 export default function MachineDisplay({ messages, amount }: Props) {
     return (
-        <div
-            className="
+        <>
+            <h2 className="text-xl font-semibold mb-4">Display</h2>
+            <div
+                className="
                 rounded-lg
                 bg-black
                 p-4
                 font-mono
                 text-green-400
             "
-        >
-            <div>Balance: {amount}</div>
+            >
+                <div className="border-b border-gray-700">
+                    Balance: {amount}
+                </div>
 
-            {messages.map((message, index) => (
-                <div key={index}>{message}</div>
-            ))}
-        </div>
+                {messages.map((message, index) => (
+                    <div key={index}>{message}</div>
+                ))}
+            </div>
+        </>
     );
 }

@@ -24,7 +24,7 @@ const menu = [
         path: "/admin/coins",
     },
     {
-        title: "Display",
+        title: "Logs",
         path: "/admin/display",
     },
 ];

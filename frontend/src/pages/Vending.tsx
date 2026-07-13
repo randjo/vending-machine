@@ -9,12 +9,15 @@ import CoinButton from "../components/vending/CoinButton";
 import MachineDisplay from "../components/vending/MachineDisplay";
 import Button from "../components/ui/Button";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Vending() {
     const [drinks, setDrinks] = useState<VendingDrink[]>([]);
     const [coins, setCoins] = useState<VendingCoin[]>([]);
     const [messages, setMessages] = useState<string[]>([]);
     const [amount, setAmount] = useState("");
+    const { user } = useAuth();
 
     async function loadMachine() {
         const [drinksResponse, coinsResponse, displayResponse, amountResponse] =
@@ -82,38 +85,35 @@ export default function Vending() {
             p-6
         "
         >
-            <h1
-                className="
-                text-3xl
-                font-bold
-                mb-6
-            "
-            >
-                Coffee Machine
-            </h1>
+            <div className="mb-6 flex items-center justify-between">
+                <h1 className="text-3xl font-bold">Vending Machine</h1>
+
+                {user && (
+                    <Button>
+                        <Link to="/admin">Admin Panel</Link>
+                    </Button>
+                )}
+            </div>
 
             <div
                 className="
-                grid
-                grid-cols-1
-                lg:grid-cols-3
-                gap-6
-            "
+                    grid
+                    grid-cols-1
+                    lg:grid-cols-3
+                    gap-6"
             >
                 {/* Drinks */}
+                <div className="lg:col-span-2">
+                    <h2 className="text-xl font-semibold mb-4">
+                        Choose your drink
+                    </h2>
 
-                <div
-                    className="
-                    lg:col-span-2
-                    "
-                >
                     <div
                         className="
-                        grid
-                        grid-cols-2
-                        md:grid-cols-3
-                        gap-4
-                    "
+                            grid
+                            grid-cols-2
+                            md:grid-cols-3
+                            gap-4"
                     >
                         {drinks.map((drink) => (
                             <DrinkCard
@@ -126,36 +126,35 @@ export default function Vending() {
                 </div>
 
                 {/* Coins */}
-
-                <div
-                    className="
-                        bg-white
-                        rounded-xl
-                        shadow
-                        p-6
-                    "
-                >
-                    <h2 className="font-semibold mb-4">Insert coin</h2>
+                <div>
+                    <h2 className="text-xl font-semibold mb-4">Insert coins</h2>
 
                     <div
                         className="
-                        flex
-                        flex-wrap
-                        gap-4
-                    "
+                            bg-white
+                            rounded-xl
+                            shadow
+                            p-6"
                     >
-                        {coins.map((coin) => (
-                            <CoinButton
-                                key={coin.value}
-                                coin={coin}
-                                onInsert={() => insertCoin(coin)}
-                            />
-                        ))}
-                    </div>
+                        <div
+                            className="
+                                flex
+                                flex-wrap
+                                gap-4"
+                        >
+                            {coins.map((coin) => (
+                                <CoinButton
+                                    key={coin.value}
+                                    coin={coin}
+                                    onInsert={() => insertCoin(coin)}
+                                />
+                            ))}
+                        </div>
 
-                    <Button onClick={returnChange} className="mt-6">
-                        Return change
-                    </Button>
+                        <Button onClick={returnChange} className="mt-6">
+                            Return change
+                        </Button>
+                    </div>
                 </div>
             </div>
 
