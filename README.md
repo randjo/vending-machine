@@ -52,15 +52,12 @@ A full-stack vending machine application with a public customer interface and a 
 
 ```
 vending-machine/
-├── app/
-│   ├── Domain/Vending/      # Core vending machine domain logic
-│   ├── Http/Controllers/    # API controllers
-│   ├── Repositories/        # Data access layer
-│   └── Services/            # Application services
-├── database/migrations/     # Schema and default currency seed
-├── frontend/                # React SPA (see frontend/README.md)
-├── routes/api.php           # API routes
-└── tests/Feature/           # Pest feature tests
+├── backend/                 # Laravel API (see backend/README.md)
+│   ├── app/
+│   ├── database/
+│   ├── routes/
+│   └── tests/
+└── frontend/                # React SPA (see frontend/README.md)
 ```
 
 ## Configuration
@@ -68,22 +65,22 @@ vending-machine/
 ### 1. Clone and install dependencies
 
 ```bash
-composer install
+cd backend && composer install && cd ..
 cd frontend && npm install && cd ..
 ```
 
-### 2. Environment file
+### 2. Backend environment
 
 Copy the example environment file and generate an application key:
 
 ```bash
-cp .env.example .env
-php artisan key:generate
+cp backend/.env.example backend/.env
+cd backend && php artisan key:generate && cd ..
 ```
 
 ### 3. Database
 
-Create a MySQL database and update `.env`:
+Create a MySQL database and update `backend/.env`:
 
 ```env
 DB_CONNECTION=mysql
@@ -97,8 +94,10 @@ DB_PASSWORD=vending_machine_password
 Run migrations and seed the default admin user:
 
 ```bash
+cd backend
 php artisan migrate
 php artisan db:seed
+cd ..
 ```
 
 The seeder creates:
@@ -112,14 +111,14 @@ Migrations also seed a default currency record (`лв`, position after amount).
 
 ### 4. Sanctum and CORS
 
-For local development with the React dev server, ensure `.env` contains:
+For local development with the React dev server, ensure `backend/.env` contains:
 
 ```env
 APP_URL=http://localhost:8000
 SANCTUM_STATEFUL_DOMAINS=localhost:5173
 ```
 
-CORS is configured in `config/cors.php` to allow `http://localhost:5173` with credentials.
+CORS is configured in `backend/config/cors.php` to allow `http://localhost:5173` with credentials.
 
 ### 5. Frontend environment
 
@@ -138,6 +137,7 @@ VITE_API_URL=http://localhost:8000
 **Backend:**
 
 ```bash
+cd backend
 php artisan serve
 ```
 
@@ -150,12 +150,11 @@ npm run dev
 
 ### URLs
 
-| URL                                       | Description            |
-| ----------------------------------------- | ---------------------- |
-| `http://localhost:5173/`                  | Public vending machine |
-| `http://localhost:5173/admin/login`       | Admin login            |
-| `http://localhost:5173/admin`             | Admin dashboard        |
-| `http://localhost:8000/api/vending/state` | Machine state API      |
+| URL                                 | Description            |
+| ----------------------------------- | ---------------------- |
+| `http://localhost:5173/`            | Public vending machine |
+| `http://localhost:5173/admin/login` | Admin login            |
+| `http://localhost:5173/admin`       | Admin dashboard        |
 
 ## API overview
 
@@ -173,7 +172,6 @@ All API routes are prefixed with `/api`.
 | GET    | `/amount`  | View inserted amount             |
 | GET    | `/balance` | View current balance             |
 | GET    | `/display` | Get display messages             |
-| GET    | `/state`   | Get full machine state           |
 
 ### Admin (`/api/admin`)
 
@@ -193,9 +191,10 @@ Authentication uses Laravel Sanctum session cookies. The frontend requests a CSR
 
 ## Testing
 
-Tests use an in-memory SQLite database (configured in `phpunit.xml`).
+Tests use an in-memory SQLite database (configured in `backend/phpunit.xml`).
 
 ```bash
+cd backend
 composer test
 # or
 php artisan test
@@ -212,6 +211,7 @@ Prices are submitted in BGN from the admin UI and stored as cents in the databas
 A standalone PHP demo of the domain layer is available:
 
 ```bash
+cd backend
 php demo.php
 ```
 

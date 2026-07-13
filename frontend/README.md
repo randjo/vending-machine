@@ -38,7 +38,7 @@ Authentication is handled by `AuthContext` using Laravel Sanctum session cookies
 
 - Node.js 20+
 - npm
-- Laravel API running at `http://localhost:8000` (see root [README.md](../README.md))
+- Laravel API running at `http://localhost:8000` (see root [README.md](../README.md) and [backend/README.md](../backend/README.md))
 
 ## Configuration
 
