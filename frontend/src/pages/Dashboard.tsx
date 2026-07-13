@@ -33,7 +33,7 @@ export default function Dashboard() {
                 text: response.data.message,
                 icon: "success",
             });
-        } catch (error) {
+        } catch {
             await Swal.fire({
                 title: "Error",
                 text: "Could not restart machine.",

@@ -44,19 +44,31 @@ final class Wallet
 
     public function getChange(): array
     {
-        $amount = $this->getBalance();
+        $balance = $amount = $this->getBalance();
         $result = [];
+        $change = 0;
 
         foreach (array_reverse($this->settings->getAllowedCoins()) as $coin) {
-            while ($amount >= $coin) {
+            while ($balance >= $coin) {
                 $result[$coin] = ($result[$coin] ?? 0) + 1;
-                $amount -= $coin;
+                $balance -= $coin;
             }
         }
 
-        $this->reset();
+        if ($balance > 0) {
+            $this->save($balance);
+        } else {
+            $this->reset();
+        }
 
-        return $result;
+        $change = $amount - $balance;
+
+        return [$change, $result];
+    }
+
+    public function save(int $amount): void
+    {
+        $this->repository->saveBalance($amount);
     }
 
     public function reset(): void

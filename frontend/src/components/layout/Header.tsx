@@ -1,5 +1,6 @@
 import Button from "../ui/Button";
 import { useAuth } from "../../auth/AuthContext";
+import { Link } from "react-router-dom";
 
 type Props = {
     onMenuClick: () => void;
@@ -19,11 +20,15 @@ export default function Header({ onMenuClick }: Props) {
                         <span className="text-xl">☰</span>
                     </button>
 
-                    <h1 className="text-lg font-semibold">Vending Admin</h1>
+                    <h1 className="text-lg font-semibold">Admin Panel</h1>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="hidden sm:block text-right">
+                <div className="flex items-center gap-3">
+                    <Button>
+                        <Link to="/">Vending Machine</Link>
+                    </Button>
+
+                    <div className="hidden text-right sm:block">
                         <div className="font-medium">{user?.name}</div>
 
                         <div className="text-sm text-gray-500">

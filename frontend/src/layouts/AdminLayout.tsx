@@ -1,11 +1,15 @@
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "../components/layout/Header";
 import Sidebar from "../components/layout/Sidebar";
 
 export default function AdminLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        document.title = "Vending Machine - Admin";
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-100">

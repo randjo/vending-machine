@@ -133,8 +133,7 @@ final class VendingMachine
     // 💸 getCoins
     public function getCoins(): self
     {
-        $balance = $this->wallet->getBalance();
-        $change = $this->wallet->getChange();
+        [$change, $changeParts] = $this->wallet->getChange();
 
         if (empty($change)) {
             $this->display->add("Няма ресто за връщане.");
@@ -143,13 +142,13 @@ final class VendingMachine
 
         $parts = [];
 
-        foreach ($change as $coin => $count) {
+        foreach ($changeParts as $coin => $count) {
             $parts[] = "{$count}x{$this->currency->format($coin)}";
         }
 
         $this->display->add(
             "Получихте ресто " .
-                $this->currency->format($balance) .
+                $this->currency->format($change) .
                 " в монети от: " . implode(", ", $parts)
         );
 

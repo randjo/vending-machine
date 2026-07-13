@@ -19,10 +19,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
     async function checkAuth() {
         try {
             const { data } = await api.get("/api/admin/user");
@@ -34,6 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
     async function login(credentials: LoginData) {
         try {

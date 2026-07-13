@@ -21,7 +21,7 @@ export default function Coins() {
             const response = await api.get("/api/admin/coins");
 
             setCoins(response.data.coins);
-        } catch (error) {
+        } catch {
             setError("Failed to load coins");
         } finally {
             setLoading(false);
