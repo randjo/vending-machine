@@ -1,0 +1,81 @@
+services:
+    mysql:
+        image: mysql:8.4
+        container_name: vending-mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: vending_machine
+            MYSQL_USER: vending_machine
+            MYSQL_PASSWORD: vending_machine_password
+            MYSQL_ROOT_PASSWORD: root_password
+        ports:
+            - "3307:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "mysqladmin",
+                    "ping",
+                    "-h",
+                    "127.0.0.1",
+                    "-uroot",
+                    "-proot_password",
+                ]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+            start_period: 20s
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: vending-backend
+        restart: unless-stopped
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./backend:/var/www/html
+            - backend_vendor:/var/www/html/vendor
+        environment:
+            APP_NAME: VendingMachine
+            APP_ENV: local
+            APP_DEBUG: "true"
+            APP_URL: http://localhost:8000
+            DB_CONNECTION: mysql
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: vending_machine
+            DB_USERNAME: vending_machine
+            DB_PASSWORD: vending_machine_password
+            SESSION_DRIVER: database
+            CACHE_STORE: database
+            QUEUE_CONNECTION: database
+            SANCTUM_STATEFUL_DOMAINS: localhost:5173
+            CORS_ALLOWED_ORIGINS: http://localhost:5173
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: vending-frontend
+        restart: unless-stopped
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./frontend:/app
+            - frontend_node_modules:/app/node_modules
+        environment:
+            VITE_API_URL: http://localhost:8000
+        depends_on:
+            - backend
+
+volumes:
+    mysql_data:
+    backend_vendor:
+    frontend_node_modules:

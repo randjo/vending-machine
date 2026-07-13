@@ -134,6 +134,16 @@ VITE_API_URL=http://localhost:8000
 
 ## Running the application
 
+### With Docker (recommended)
+
+See [DOCKER.md](DOCKER.md) for the full guide.
+
+```bash
+docker compose up --build
+```
+
+### Without Docker
+
 **Backend:**
 
 ```bash
