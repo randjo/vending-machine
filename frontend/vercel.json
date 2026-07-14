@@ -1,3 +1,13 @@
 {
-    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    "rewrites": [
+        {
+            "source": "/sanctum/:path*",
+            "destination": "https://vending-machine-production-2ad8.up.railway.app/sanctum/:path*"
+        },
+        {
+            "source": "/api/:path*",
+            "destination": "https://vending-machine-production-2ad8.up.railway.app/api/:path*"
+        },
+        { "source": "/(.*)", "destination": "/index.html" }
+    ]
 }
