@@ -3,13 +3,11 @@ import axios from "axios";
 
 import type { ValidationErrorResponse } from "../types/api";
 
-export function getValidationErrors(
-    error: unknown,
-): Record<string, string[]> | null {
+export function getValidationErrors(error: unknown): Record<string, string[]> {
     const axiosError = error as AxiosError<ValidationErrorResponse>;
 
     if (axiosError.response?.status !== 422) {
-        return null;
+        return {};
     }
 
     return axiosError.response.data.errors;

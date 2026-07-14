@@ -78,14 +78,14 @@ export default function Currency() {
 
                     <tbody>
                         <tr className="border-b last:border-b-0">
-                            <td className="px-6 py-4">{currency.sign}</td>
+                            <td className="px-6 py-4">{currency?.sign}</td>
 
-                            <td className="px-6 py-4">{currency.space}</td>
+                            <td className="px-6 py-4">{currency?.space}</td>
 
-                            <td className="px-6 py-4">{currency.position}</td>
+                            <td className="px-6 py-4">{currency?.position}</td>
 
                             <td className="px-6 py-4">
-                                <Button onClick={() => editCurrency(currency)}>
+                                <Button onClick={() => editCurrency(currency!)}>
                                     Edit
                                 </Button>
                             </td>

@@ -12,7 +12,9 @@ export default function Drinks() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null);
+    const [selectedDrink, setSelectedDrink] = useState<Drink | undefined>(
+        undefined,
+    );
 
     async function loadDrinks() {
         try {
@@ -77,7 +79,7 @@ export default function Drinks() {
 
                 <Button
                     onClick={() => {
-                        setSelectedDrink(null);
+                        setSelectedDrink(undefined);
                         setShowCreateModal(true);
                     }}
                 >

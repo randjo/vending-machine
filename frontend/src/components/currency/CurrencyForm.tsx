@@ -9,7 +9,7 @@ import type { Currency } from "../../types/api";
 import type { CurrencyPosition } from "../../types/api";
 
 interface Props {
-    currency?: Currency;
+    currency?: Currency | null;
     onSaved: () => void;
 }
 
@@ -37,7 +37,7 @@ export default function CurrencyForm({ currency, onSaved }: Props) {
         try {
             setLoading(true);
 
-            await api.put(`/api/admin/currency/${currency.id}`, {
+            await api.put(`/api/admin/currency/${currency?.id}`, {
                 sign,
                 space,
                 position,

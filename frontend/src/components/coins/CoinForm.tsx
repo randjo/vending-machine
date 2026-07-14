@@ -9,14 +9,14 @@ import type { Coin } from "../../types/api";
 import { getValidationErrors } from "../../utils/apiError";
 
 interface Props {
-    coin?: Coin;
+    coin?: Coin | null;
     onSaved: () => void;
 }
 
 export default function CoinForm({ coin, onSaved }: Props) {
     const [value, setValue] = useState("");
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string[]>>({});
+    const [errors, setErrors] = useState<Record<string, string[]>>();
 
     useEffect(() => {
         if (coin) {
