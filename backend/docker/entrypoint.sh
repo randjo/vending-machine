@@ -22,18 +22,31 @@ set_env() {
 }
 
 # Ensure Docker env wins over a stale .env (e.g. DB_HOST=127.0.0.1)
-if [ -n "${APP_URL}" ]; then set_env "APP_URL" "${APP_URL}"; fi
-if [ -n "${DB_CONNECTION}" ]; then set_env "DB_CONNECTION" "${DB_CONNECTION}"; fi
-if [ -n "${DB_HOST}" ]; then set_env "DB_HOST" "${DB_HOST}"; fi
-if [ -n "${DB_PORT}" ]; then set_env "DB_PORT" "${DB_PORT}"; fi
-if [ -n "${DB_DATABASE}" ]; then set_env "DB_DATABASE" "${DB_DATABASE}"; fi
-if [ -n "${DB_USERNAME}" ]; then set_env "DB_USERNAME" "${DB_USERNAME}"; fi
-if [ -n "${DB_PASSWORD}" ]; then set_env "DB_PASSWORD" "${DB_PASSWORD}"; fi
-if [ -n "${SESSION_DRIVER}" ]; then set_env "SESSION_DRIVER" "${SESSION_DRIVER}"; fi
-if [ -n "${CACHE_STORE}" ]; then set_env "CACHE_STORE" "${CACHE_STORE}"; fi
-if [ -n "${QUEUE_CONNECTION}" ]; then set_env "QUEUE_CONNECTION" "${QUEUE_CONNECTION}"; fi
-if [ -n "${SANCTUM_STATEFUL_DOMAINS}" ]; then set_env "SANCTUM_STATEFUL_DOMAINS" "${SANCTUM_STATEFUL_DOMAINS}"; fi
-if [ -n "${CORS_ALLOWED_ORIGINS}" ]; then set_env "CORS_ALLOWED_ORIGINS" "${CORS_ALLOWED_ORIGINS}"; fi
+for var in \
+    APP_NAME \
+    APP_ENV \
+    APP_DEBUG \
+    APP_URL \
+    DB_CONNECTION \
+    DB_HOST \
+    DB_PORT \
+    DB_DATABASE \
+    DB_USERNAME \
+    DB_PASSWORD \
+    SESSION_DRIVER \
+    SESSION_DOMAIN \
+    SESSION_SECURE_COOKIE \
+    CACHE_STORE \
+    QUEUE_CONNECTION \
+    SANCTUM_STATEFUL_DOMAINS \
+    CORS_ALLOWED_ORIGINS
+do
+    eval value=\$$var
+
+    if [ -n "$value" ]; then
+        set_env "$var" "$value"
+    fi
+done
 
 if [ ! -d vendor ] || [ -z "$(ls -A vendor 2>/dev/null)" ]; then
     echo "Installing Composer dependencies..."
@@ -61,13 +74,27 @@ until php -r "
     sleep 2
 done
 
+echo "Database available."
+
 php artisan config:clear || true
 
-echo "Running migrations..."
-php artisan migrate --force
+if [ "${RUN_MIGRATIONS}" = "true" ]; then
+    echo "Running migrations..."
+    php artisan migrate --force
+fi
 
-echo "Seeding database..."
-php artisan db:seed --force
+if [ "${RUN_SEEDERS}" = "true" ]; then
+    echo "Seeding database..."
+    php artisan db:seed --force
+fi
+
+if [ "${APP_ENV}" = "production" ]; then
+    echo "Optimizing Laravel..."
+
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+fi
 
 echo "Starting Laravel development server..."
 exec php artisan serve --host=0.0.0.0 --port=8000
